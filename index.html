@@ -578,6 +578,15 @@
     </div>
     <div class="header-right">
       <span id="offline-badge" class="offline-badge">⚠ Offline</span>
+      <button id="btn-qr" class="btn-icon" title="Show QR code">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+          <line x1="14" y1="14" x2="14" y2="14.01"/><line x1="18" y1="14" x2="18" y2="14.01"/>
+          <line x1="21" y1="14" x2="21" y2="17"/><line x1="14" y1="17" x2="17" y2="17"/>
+          <line x1="17" y1="20" x2="21" y2="20"/><line x1="21" y1="17" x2="21" y2="21"/>
+        </svg>
+      </button>
       <button id="btn-share" class="btn-icon" title="Copy link to clipboard">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
@@ -634,9 +643,27 @@
 </div>
 
 <!-- ══════════════════════════════════════════════════════
+     QR CODE MODAL
+════════════════════════════════════════════════════════ -->
+<div id="qr-overlay" class="modal-overlay hidden">
+  <div class="modal" style="text-align:center;max-width:320px;" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title">
+    <h3 id="qr-modal-title" style="margin-bottom:6px;">Scan to Join</h3>
+    <p id="qr-room-label" style="font-size:.82rem;color:var(--muted);margin-bottom:20px;"></p>
+    <div id="qr-code" style="display:inline-block;padding:16px;background:#fff;border-radius:12px;border:1px solid var(--border);"></div>
+    <p id="qr-url-text" style="font-size:.72rem;color:var(--muted);margin-top:14px;word-break:break-all;"></p>
+    <button id="btn-close-qr" class="btn btn-secondary" style="width:100%;margin-top:20px;">Close</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
      TOAST
 ════════════════════════════════════════════════════════ -->
 <div id="toast" role="status" aria-live="polite"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     QR CODE LIBRARY
+════════════════════════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <!-- ══════════════════════════════════════════════════════
      FIREBASE SDK  (compat v9 — works in plain <script>)
@@ -1060,6 +1087,31 @@ document.getElementById('room-input').addEventListener('keydown', e => {
 
 // Room header
 document.getElementById('btn-back').addEventListener('click', () => { location.hash = ''; });
+
+document.getElementById('btn-qr').addEventListener('click', () => {
+  const url = location.href;
+  const qrBox = document.getElementById('qr-code');
+  qrBox.innerHTML = '';
+  new QRCode(qrBox, {
+    text: url,
+    width: 220,
+    height: 220,
+    colorDark: '#1a1a2e',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+  document.getElementById('qr-room-label').textContent = 'Room: ' + (state.roomId || '');
+  document.getElementById('qr-url-text').textContent = url;
+  document.getElementById('qr-overlay').classList.remove('hidden');
+});
+
+document.getElementById('btn-close-qr').addEventListener('click', () => {
+  document.getElementById('qr-overlay').classList.add('hidden');
+});
+
+document.getElementById('qr-overlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) document.getElementById('qr-overlay').classList.add('hidden');
+});
 
 document.getElementById('btn-share').addEventListener('click', () => {
   navigator.clipboard.writeText(location.href)
