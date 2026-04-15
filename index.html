@@ -669,6 +669,7 @@
      FIREBASE SDK  (compat v9 — works in plain <script>)
 ════════════════════════════════════════════════════════ -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <!-- ══════════════════════════════════════════════════════
@@ -720,6 +721,9 @@ function calcRemaining(t) {
 /* ─── D. FIREBASE INIT ───────────────────────────────────────────────────*/
 function initFirebase() {
   firebase.initializeApp(FIREBASE_CONFIG);
+
+  // Sign in anonymously so security rules (auth !== null) are satisfied
+  firebase.auth().signInAnonymously().catch(err => console.error('Auth error:', err));
 
   // Track server clock offset for accurate timing
   firebase.database().ref('.info/serverTimeOffset').on('value', snap => {
